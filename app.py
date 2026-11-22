@@ -687,7 +687,7 @@ with weather_tab:
             st.info("Relancez l’extraction pour appliquer les filtres Année et Mois actuels.")
 
 with forms_tab:
-    st.subheader("📝 Formulaires d’évaluation")
+    st.subheader("Formulaires d’évaluation")
     st.write(
         "Donnez votre avis sur l’application en répondant à l’un des deux formulaires "
         "ci-dessous. Ils contiennent les mêmes questions."
