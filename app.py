@@ -256,7 +256,7 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    #MainMenu, footer { visibility: hidden; }
+    footer { visibility: hidden; }
     header[data-testid="stHeader"] { background: transparent; }
     .block-container { padding-top: 2.5rem; padding-bottom: 3rem; max-width: 1200px; }
 
@@ -293,6 +293,24 @@ st.markdown(
     div[data-testid="stDownloadButton"] button,
     div[data-testid="stLinkButton"] a,
     div[data-testid="stButton"] button { border-radius: 8px; font-weight: 600; }
+
+    /* Couleur d'accent (lisible en thème clair et sombre) */
+    div[data-baseweb="tab-highlight"] { background-color: #2E75B6 !important; }
+    button[data-baseweb="tab"][aria-selected="true"] { color: #2E75B6 !important; }
+    button[kind="primary"],
+    button[data-testid="stBaseButton-primary"],
+    a[data-testid="stBaseLinkButton-primary"] {
+        background-color: #2E75B6 !important;
+        border-color: #2E75B6 !important;
+        color: #FFFFFF !important;
+    }
+    button[kind="primary"]:hover,
+    button[data-testid="stBaseButton-primary"]:hover,
+    a[data-testid="stBaseLinkButton-primary"]:hover {
+        background-color: #1F5C94 !important;
+        border-color: #1F5C94 !important;
+    }
+    div[data-testid="stMetricValue"] { color: #2E75B6; }
 
     section[data-testid="stSidebar"] .block-container { padding-top: 2rem; }
     hr { margin: 1.5rem 0; }
@@ -601,7 +619,7 @@ with weather_tab:
             st.info("Relancez l’extraction pour appliquer les filtres Année et Mois actuels.")
 
 with forms_tab:
-    st.subheader(" Formulaires d’évaluation")
+    st.subheader("📝 Formulaires d’évaluation")
     st.write(
         "Donnez votre avis sur l’application en répondant à l’un des deux formulaires "
         "ci-dessous. Ils contiennent les mêmes questions."
@@ -616,7 +634,7 @@ with forms_tab:
     with col1:
         with st.container(border=True):
             st.markdown("### 🟦 KoboToolbox")
-            st.write("Formulaire KOBO.")
+            st.write("Formulaire basé sur le fichier XLSForm `Formulaire_evaluation_Kobo.xlsx`, avec logique conditionnelle.")
             if kobo_url and valid_form_url(kobo_url):
                 st.link_button("Répondre au formulaire Kobo", kobo_url, type="primary", use_container_width=True)
             else:
@@ -625,7 +643,7 @@ with forms_tab:
     with col2:
         with st.container(border=True):
             st.markdown("### 🟩 Google Forms")
-            st.write("Formulaire Google_form")
+            st.write("Formulaire accessible en ligne pour tous les testeurs et évaluateurs.")
             if google_url and valid_form_url(google_url):
                 st.link_button("Répondre au formulaire Google", google_url, type="primary", use_container_width=True)
             else:
