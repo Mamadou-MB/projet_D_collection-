@@ -256,17 +256,46 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    .block-container { padding-top: 2rem; max-width: 1200px; }
-    h1 { font-weight: 700; letter-spacing: -0.5px; }
-    button[data-baseweb="tab"] { font-size: 1rem; font-weight: 600; padding: 0.6rem 1rem; }
+    #MainMenu, footer { visibility: hidden; }
+    header[data-testid="stHeader"] { background: transparent; }
+    .block-container { padding-top: 2.5rem; padding-bottom: 3rem; max-width: 1200px; }
+
+    h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 0.25rem; }
+    div[data-testid="stCaptionContainer"] { opacity: 0.75; }
+    div[data-testid="stHeading"] h3 {
+        font-size: 1.35rem;
+        font-weight: 650;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1rem;
+        border-bottom: 1px solid rgba(128, 128, 128, 0.25);
+    }
+
+    div[data-baseweb="tab-list"] {
+        gap: 0.25rem;
+        border-bottom: 1px solid rgba(128, 128, 128, 0.25);
+        margin-bottom: 1.25rem;
+    }
+    button[data-baseweb="tab"] { font-size: 0.95rem; font-weight: 600; padding: 0.7rem 1.1rem; }
+
     div[data-testid="stMetric"] {
         border: 1px solid rgba(128, 128, 128, 0.25);
-        border-radius: 12px;
-        padding: 0.8rem 1rem;
+        border-radius: 10px;
+        padding: 0.9rem 1.1rem;
     }
-    div[data-testid="stDataFrame"] { border-radius: 10px; }
+    div[data-testid="stMetricLabel"] p { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; opacity: 0.7; }
+    div[data-testid="stMetricValue"] { font-weight: 700; }
+
+    div[data-testid="stVerticalBlockBorderWrapper"] { border-radius: 12px; }
+    div[data-testid="stExpander"] { border-radius: 10px; }
+    div[data-testid="stDataFrame"] { border: 1px solid rgba(128, 128, 128, 0.25); border-radius: 10px; }
+    div[data-testid="stAlert"] { border-radius: 10px; }
+
     div[data-testid="stDownloadButton"] button,
-    div[data-testid="stLinkButton"] a { border-radius: 10px; }
+    div[data-testid="stLinkButton"] a,
+    div[data-testid="stButton"] button { border-radius: 8px; font-weight: 600; }
+
+    section[data-testid="stSidebar"] .block-container { padding-top: 2rem; }
+    hr { margin: 1.5rem 0; }
     </style>
     """,
     unsafe_allow_html=True,
@@ -274,8 +303,8 @@ st.markdown(
 
 st.title("Collecte de données — Sénégal")
 st.caption(
-    "Scraping avec code, tableau de bord, bulletins météo "
-    "et formulaires d’évaluation."
+    "Collecte, nettoyage et analyse de données : scraping avec code, tableau de bord, "
+    "bulletins météo et formulaires d’évaluation."
 )
 
 with st.sidebar:
@@ -404,7 +433,7 @@ with code_tab:
         )
 
 with dashboard_tab:
-    st.subheader("Tableau de bord des collectes avec code & Rapport d’analyse")
+    st.subheader("Tableau de bord et rapport d’analyse")
     st.write(
         "Ce tableau de bord synthétise les données nettoyées issues des collectes avec code (Beautiful Soup). "
         "Il intègre des graphiques interactifs et un rapport détaillé expliquant les variables."
@@ -429,7 +458,7 @@ with dashboard_tab:
         st.dataframe(df_source.head(10), use_container_width=True, hide_index=True)
 
         if "Book" in source_choice:
-            st.markdown("#### Graphiques & Analyse des variables — Books to Scrape")
+            st.markdown("#### Graphiques et analyse des variables — Books to Scrape")
             col_a, col_b = st.columns(2)
             with col_a:
                 if "Prix" in df_source.columns:
@@ -451,7 +480,7 @@ with dashboard_tab:
                 st.caption("Explication : Met en évidence les catégories littéraires les plus denses.")
 
         elif "Gaaraas" in source_choice or "Motos" in source_choice:
-            st.markdown("####  Graphiques & Analyse des variables — Annonces Véhicules")
+            st.markdown("#### Graphiques et analyse des variables — Annonces de véhicules")
             col_a, col_b = st.columns(2)
             with col_a:
                 if "Prix" in df_source.columns:
@@ -468,8 +497,8 @@ with dashboard_tab:
                     st.bar_chart(brands)
                     st.caption("Explication : Identifie les marques les plus fréquentes (Toyota, Peugeot, etc.).")
 
-        st.markdown("---")
-        st.markdown("###  Rapport explicatif des variables et graphiques")
+        st.divider()
+        st.markdown("### Rapport explicatif des variables et graphiques")
         report_path = next(
             (p for root in search_roots() for p in root.rglob("RAPPORT_ANALYSE.md")),
             None,
