@@ -1,13 +1,10 @@
 [theme]
 base = "light"
-primaryColor = "#1F4E79"
-backgroundColor = "#FFFFFF"
-secondaryBackgroundColor = "#F4F6F9"
+primaryColor = "#13538A"
+backgroundColor = "#F4F6FA"
+secondaryBackgroundColor = "#FFFFFF"
 textColor = "#1B2430"
 font = "sans serif"
-
-[server]
-showEmailPrompt = false
 
 [browser]
 gatherUsageStats = false
