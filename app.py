@@ -584,23 +584,29 @@ with dashboard_tab:
                     st.caption("Explication : Identifie les marques les plus fréquentes (Toyota, Peugeot, etc.).")
 
         st.divider()
-        st.markdown("### Rapport explicatif des variables et graphiques")
-        report_path = next(
-            (p for root in search_roots() for p in root.rglob("RAPPORT_ANALYSE.md")),
-            None,
-        )
-        if report_path:
-            report_text = report_path.read_text(encoding="utf-8")
-            with st.expander("Lire le rapport d’analyse complet", expanded=True):
-                st.markdown(report_text)
-            st.download_button(
-                "Télécharger le rapport d’analyse (MD)",
-                data=report_text.encode("utf-8"),
-                file_name="RAPPORT_ANALYSE.md",
-                mime="text/markdown",
-            )
-        else:
-            st.info("Le rapport d’analyse (`RAPPORT_ANALYSE.md`) n’est pas disponible sur le serveur.")
+        st.markdown("### Synthèse des variables")
+        variables = pd.DataFrame({
+            "Variable": df_source.columns,
+            "Type": [str(dtype) for dtype in df_source.dtypes],
+            "Renseignées": df_source.notna().sum().to_numpy(),
+            "Manquantes": df_source.isna().sum().to_numpy(),
+            "Valeurs distinctes": df_source.nunique().to_numpy(),
+        })
+        st.dataframe(variables, use_container_width=True, hide_index=True)
+
+        numeric_columns = df_source.select_dtypes("number")
+        if not numeric_columns.empty:
+            st.markdown("**Statistiques descriptives des variables numériques**")
+            stats = numeric_columns.describe().T.round(2).reset_index()
+            stats = stats.rename(columns={
+                "index": "Variable",
+                "count": "Effectif",
+                "mean": "Moyenne",
+                "std": "Écart-type",
+                "min": "Minimum",
+                "max": "Maximum",
+            })
+            st.dataframe(stats, use_container_width=True, hide_index=True)
 
         st.download_button(
             "Télécharger les données de cette source (CSV)",
@@ -687,7 +693,7 @@ with weather_tab:
             st.info("Relancez l’extraction pour appliquer les filtres Année et Mois actuels.")
 
 with forms_tab:
-    st.subheader("Formulaires d’évaluation")
+    st.subheader(" Formulaires d’évaluation")
     st.write(
         "Donnez votre avis sur l’application en répondant à l’un des deux formulaires "
         "ci-dessous. Ils contiennent les mêmes questions."
@@ -702,7 +708,7 @@ with forms_tab:
     with col1:
         with st.container(border=True):
             st.markdown("### 🟦 KoboToolbox")
-            st.write("KOBO Formulaire .")
+            st.write("KOBO Formulaire.")
             if kobo_url and valid_form_url(kobo_url):
                 st.link_button("Répondre au formulaire Kobo", kobo_url, type="primary", use_container_width=True)
             else:
@@ -711,7 +717,7 @@ with forms_tab:
     with col2:
         with st.container(border=True):
             st.markdown("### 🟩 Google Forms")
-            st.write(" Google_form Formulaire .")
+            st.write("Google_form Formulaire.")
             if google_url and valid_form_url(google_url):
                 st.link_button("Répondre au formulaire Google", google_url, type="primary", use_container_width=True)
             else:
