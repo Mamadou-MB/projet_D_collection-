@@ -601,7 +601,7 @@ with weather_tab:
             st.info("Relancez l’extraction pour appliquer les filtres Année et Mois actuels.")
 
 with forms_tab:
-    st.subheader("📝 Formulaires d’évaluation")
+    st.subheader(" Formulaires d’évaluation")
     st.write(
         "Donnez votre avis sur l’application en répondant à l’un des deux formulaires "
         "ci-dessous. Ils contiennent les mêmes questions."
@@ -616,7 +616,7 @@ with forms_tab:
     with col1:
         with st.container(border=True):
             st.markdown("### 🟦 KoboToolbox")
-            st.write("Formulaire basé sur le fichier XLSForm `Formulaire_evaluation_Kobo.xlsx`, avec logique conditionnelle.")
+            st.write("Formulaire KOBO.")
             if kobo_url and valid_form_url(kobo_url):
                 st.link_button("Répondre au formulaire Kobo", kobo_url, type="primary", use_container_width=True)
             else:
@@ -625,7 +625,7 @@ with forms_tab:
     with col2:
         with st.container(border=True):
             st.markdown("### 🟩 Google Forms")
-            st.write("Formulaire accessible en ligne pour tous les testeurs et évaluateurs.")
+            st.write("Formulaire Google_form")
             if google_url and valid_form_url(google_url):
                 st.link_button("Répondre au formulaire Google", google_url, type="primary", use_container_width=True)
             else:
