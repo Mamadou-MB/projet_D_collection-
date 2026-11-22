@@ -702,7 +702,7 @@ with forms_tab:
     with col1:
         with st.container(border=True):
             st.markdown("### 🟦 KoboToolbox")
-            st.write("Formulaire basé sur le fichier XLSForm `Formulaire_evaluation_Kobo.xlsx`, avec logique conditionnelle.")
+            st.write("KOBO Formulaire .")
             if kobo_url and valid_form_url(kobo_url):
                 st.link_button("Répondre au formulaire Kobo", kobo_url, type="primary", use_container_width=True)
             else:
@@ -711,7 +711,7 @@ with forms_tab:
     with col2:
         with st.container(border=True):
             st.markdown("### 🟩 Google Forms")
-            st.write("Formulaire accessible en ligne pour tous les testeurs et évaluateurs.")
+            st.write(" Google_form Formulaire .")
             if google_url and valid_form_url(google_url):
                 st.link_button("Répondre au formulaire Google", google_url, type="primary", use_container_width=True)
             else:
