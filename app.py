@@ -5,6 +5,7 @@ import json
 import os
 import re
 import sqlite3
+import unicodedata
 import zipfile
 from pathlib import Path
 from urllib.parse import urlparse
@@ -175,18 +176,24 @@ def load_code_scrapes() -> list[dict[str, str]]:
     return list(latest.values())
 
 
+def normalize_text(value: str) -> str:
+    decomposed = unicodedata.normalize("NFD", value)
+    return "".join(c for c in decomposed if not unicodedata.combining(c)).casefold()
+
+
 def available_bulletins() -> list[tuple[int, str, Path]]:
     bulletins = []
-    for year_dir in sorted(PROJECT_DIR.glob("Bulletins_*")):
-        year_match = re.fullmatch(r"Bulletins_(\d{4})", year_dir.name)
-        if not year_match:
+    for pdf_path in sorted(PROJECT_DIR.rglob("*")):
+        if pdf_path.suffix.casefold() != ".pdf" or not pdf_path.is_file():
             continue
-        year = int(year_match.group(1))
-        for pdf_path in sorted(year_dir.glob("*.pdf")):
-            month_key = pdf_path.stem.removeprefix("climato_").casefold()
-            month = MONTH_NAMES.get(month_key)
-            if month:
-                bulletins.append((year, month, pdf_path))
+        folders = " ".join(pdf_path.relative_to(PROJECT_DIR).parts[:-1])
+        if "bulletin" not in normalize_text(folders):
+            continue
+        year_match = re.search(r"(\d{4})", folders) or re.search(r"(\d{4})", pdf_path.stem)
+        stem = normalize_text(pdf_path.stem)
+        month = next((name for key, name in MONTH_NAMES.items() if key in stem), None)
+        if year_match and month:
+            bulletins.append((int(year_match.group(1)), month, pdf_path))
     return bulletins
 
 
@@ -469,7 +476,10 @@ with weather_tab:
     st.subheader("Bulletins météo")
     bulletins = available_bulletins()
     if not bulletins:
-        st.warning("Aucun bulletin PDF trouvé dans les dossiers Bulletins_YYYY.")
+        st.warning(
+            "Aucun bulletin PDF trouvé. Placez les fichiers dans des dossiers "
+            "Bulletins_YYYY (ex. Bulletins_2024/climato_janvier.pdf) à la racine du dépôt."
+        )
     else:
         years = sorted({year for year, _, _ in bulletins})
         selected_years = st.multiselect("Année", years, default=years)
