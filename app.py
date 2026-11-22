@@ -386,7 +386,7 @@ st.markdown(
 
 st.markdown(
     '<div class="hero">'
-    "<h1>Collecte de données — Sénégal</h1>"
+    "<h1>Collecte de données </h1>"
     "<p>Collecte, nettoyage et analyse de données : scraping avec code, tableau de bord, "
     "bulletins météo et formulaires d’évaluation.</p>"
     "</div>",
