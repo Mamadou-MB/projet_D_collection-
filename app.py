@@ -181,17 +181,30 @@ def normalize_text(value: str) -> str:
     return "".join(c for c in decomposed if not unicodedata.combining(c)).casefold()
 
 
+def search_roots() -> list[Path]:
+    roots = []
+    for root in (PROJECT_DIR, Path.cwd()):
+        if root not in roots:
+            roots.append(root)
+    return roots
+
+
+def all_pdfs() -> list[Path]:
+    found = {}
+    for root in search_roots():
+        for pdf_path in root.rglob("*"):
+            if pdf_path.suffix.casefold() == ".pdf" and pdf_path.is_file():
+                if not any(part.startswith(".") for part in pdf_path.relative_to(root).parts):
+                    found[pdf_path.resolve()] = pdf_path
+    return sorted(found.values())
+
+
 def available_bulletins() -> list[tuple[int, str, Path]]:
     bulletins = []
-    for pdf_path in sorted(PROJECT_DIR.rglob("*")):
-        if pdf_path.suffix.casefold() != ".pdf" or not pdf_path.is_file():
-            continue
-        folders = " ".join(pdf_path.relative_to(PROJECT_DIR).parts[:-1])
-        if "bulletin" not in normalize_text(folders):
-            continue
-        year_match = re.search(r"(\d{4})", folders) or re.search(r"(\d{4})", pdf_path.stem)
+    for pdf_path in all_pdfs():
         stem = normalize_text(pdf_path.stem)
         month = next((name for key, name in MONTH_NAMES.items() if key in stem), None)
+        year_match = re.search(r"(20\d{2}|19\d{2})", " ".join(pdf_path.parts[-3:]))
         if year_match and month:
             bulletins.append((int(year_match.group(1)), month, pdf_path))
     return bulletins
@@ -237,7 +250,6 @@ def valid_form_url(value: str) -> bool:
 initialize_database()
 st.set_page_config(
     page_title="Collecte de données | Sénégal",
-    page_icon="📊",
     layout="wide",
 )
 
@@ -417,7 +429,7 @@ with dashboard_tab:
         st.dataframe(df_source.head(10), use_container_width=True, hide_index=True)
 
         if "Book" in source_choice:
-            st.markdown("#### 📊 Graphiques & Analyse des variables — Books to Scrape")
+            st.markdown("#### Graphiques & Analyse des variables — Books to Scrape")
             col_a, col_b = st.columns(2)
             with col_a:
                 if "Prix" in df_source.columns:
@@ -458,7 +470,22 @@ with dashboard_tab:
 
         st.markdown("---")
         st.markdown("###  Rapport explicatif des variables et graphiques")
-        st.info("Consultez le fichier `RAPPORT_ANALYSE.md` à la racine pour la documentation complète.")
+        report_path = next(
+            (p for root in search_roots() for p in root.rglob("RAPPORT_ANALYSE.md")),
+            None,
+        )
+        if report_path:
+            report_text = report_path.read_text(encoding="utf-8")
+            with st.expander("Lire le rapport d’analyse complet", expanded=True):
+                st.markdown(report_text)
+            st.download_button(
+                "Télécharger le rapport d’analyse (MD)",
+                data=report_text.encode("utf-8"),
+                file_name="RAPPORT_ANALYSE.md",
+                mime="text/markdown",
+            )
+        else:
+            st.info("Le rapport d’analyse (`RAPPORT_ANALYSE.md`) n’est pas disponible sur le serveur.")
 
         st.download_button(
             "Télécharger les données de cette source (CSV)",
@@ -476,10 +503,16 @@ with weather_tab:
     st.subheader("Bulletins météo")
     bulletins = available_bulletins()
     if not bulletins:
-        st.warning(
-            "Aucun bulletin PDF trouvé. Placez les fichiers dans des dossiers "
-            "Bulletins_YYYY (ex. Bulletins_2024/climato_janvier.pdf) à la racine du dépôt."
-        )
+        st.warning("Aucun bulletin PDF reconnu. Les fichiers doivent être dans un dossier portant l’année (ex. Bulletins_2024/climato_janvier.pdf).")
+        with st.expander("Diagnostic : fichiers PDF détectés sur le serveur"):
+            st.write(f"Dossier de l’application : `{PROJECT_DIR}`")
+            st.write(f"Dossier de travail : `{Path.cwd()}`")
+            detected = all_pdfs()
+            if detected:
+                st.write(f"{len(detected)} PDF trouvé(s) :")
+                st.code("\n".join(str(p) for p in detected[:50]))
+            else:
+                st.write("Aucun fichier PDF n’est présent sur le serveur : ils n’ont pas été déployés avec le dépôt.")
     else:
         years = sorted({year for year, _, _ in bulletins})
         selected_years = st.multiselect("Année", years, default=years)
@@ -539,7 +572,7 @@ with weather_tab:
             st.info("Relancez l’extraction pour appliquer les filtres Année et Mois actuels.")
 
 with forms_tab:
-    st.subheader("Formulaires d’évaluation")
+    st.subheader("📝 Formulaires d’évaluation")
     st.write(
         "Donnez votre avis sur l’application en répondant à l’un des deux formulaires "
         "ci-dessous. Ils contiennent les mêmes questions."
